@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,33 +26,36 @@ app.layout = html.Div([
 ])
 # ------------------------------------------------------------------------------
 # Data manipulation to produce each graphs
-df=pd.read_csv(r'E:/Sem-4/Data Visualization Lab/crime/01_District_wise_crimes_committed_IPC_2001_2012.csv')
-df=df[df['DISTRICT']=='TOTAL']
-df.drop(['DISTRICT'],axis=1,inplace=True)
-df=df.set_index(['STATE/UT'])
-df=df.reset_index()
-df=df.groupby(['STATE/UT','YEAR']).sum().reset_index()
+# Build paths relative to this script's directory
+base_dir = os.path.dirname(__file__)
 
-fig1 = px.sunburst(df,path=['STATE/UT','YEAR'],values='TOTAL IPC CRIMES',title="State and year wise segregation of total crimes")
+df = pd.read_csv(os.path.join(base_dir, 'crime', '01_District_wise_crimes_committed_IPC_2001_2012.csv'))
+df = df[df['DISTRICT'] == 'TOTAL']
+df.drop(['DISTRICT'], axis=1, inplace=True)
+df = df.set_index(['STATE/UT'])
+df = df.reset_index()
+df = df.groupby(['STATE/UT', 'YEAR']).sum().reset_index()
+
+fig1 = px.sunburst(df, path=['STATE/UT', 'YEAR'], values='TOTAL IPC CRIMES', title="State and year wise segregation of total crimes")
 
 df.groupby(['YEAR']).sum().reset_index()
-fig2=px.treemap(df,path=['STATE/UT','YEAR'],values='TOTAL IPC CRIMES')
+fig2 = px.treemap(df, path=['STATE/UT', 'YEAR'], values='TOTAL IPC CRIMES')
 
-fig3=plt.figure(figsize=(8,12))
+fig3 = plt.figure(figsize=(8,12))
 plt.bar(df['YEAR'], df['TOTAL IPC CRIMES'])
 
-murder=df['MURDER'].sum()
-rape=df['RAPE'].sum()
-kidnapping=df['KIDNAPPING & ABDUCTION'].sum()
-robbery=df['ROBBERY'].sum() 
-riots=df['RIOTS'].sum() 
-dacoity=df['DACOITY'].sum() 
-burglary=df['BURGLARY'].sum() 
-theft=df['THEFT'].sum() 
-cheating=df['CHEATING'].sum() 
-counterfieting=df['COUNTERFIETING'].sum() 
-dowry=df['DOWRY DEATHS'].sum() 
-others=df['TOTAL IPC CRIMES'].sum() - (murder+rape+kidnapping+robbery+riots+dacoity+burglary+theft+cheating+counterfieting+dowry)
+murder = df['MURDER'].sum()
+rape = df['RAPE'].sum()
+kidnapping = df['KIDNAPPING & ABDUCTION'].sum()
+robbery = df['ROBBERY'].sum() 
+riots = df['RIOTS'].sum() 
+dacoity = df['DACOITY'].sum() 
+burglary = df['BURGLARY'].sum() 
+theft = df['THEFT'].sum() 
+cheating = df['CHEATING'].sum() 
+counterfieting = df['COUNTERFIETING'].sum() 
+dowry = df['DOWRY DEATHS'].sum() 
+others = df['TOTAL IPC CRIMES'].sum() - (murder+rape+kidnapping+robbery+riots+dacoity+burglary+theft+cheating+counterfieting+dowry)
 crime_type = ['Murder','Rape','Kidnapping','Robbery','Riots','Dacoity','Burglary','Theft','Cheating','Counterfieting','Dowry','Others']
 crime_type_vals = [murder,rape,kidnapping,robbery,riots,dacoity,burglary,theft,cheating,counterfieting,dowry,others]
 
@@ -77,7 +81,7 @@ fig6 = px.bar(dff, x='YEAR', y='TOTAL IPC CRIMES')
 # dff = dff.groupby('state')['TOTAL IPC CRIMES'].sum().sort_values(ascending=True).reset_index()
 # fig7 = px.bar(dff, y='state', x='TOTAL IPC CRIMES')
 
-victims = pd.read_csv(r'E:/Sem-4/Data Visualization Lab/crime/20_Victims_of_rape.csv')
+victims = pd.read_csv(os.path.join(base_dir, 'crime', '20_Victims_of_rape.csv'))
 # fig, ax = plt.subplots(1, figsize=(10, 10))
 # ax.axis('off')
 # ax.set_title('State-wise Rape-Cases Reported (2001-2010)', fontdict={'fontsize': '15', 'fontweight' : '3'})
@@ -85,14 +89,14 @@ victims = pd.read_csv(r'E:/Sem-4/Data Visualization Lab/crime/20_Victims_of_rape
 safe1 = victims.groupby('Area_Name')['Rape_Cases_Reported'].sum().sort_values(ascending=True).reset_index()
 s_state = safe1.head(10)
 fig12 = px.bar(s_state, x='Rape_Cases_Reported', y='Area_Name',title='Most Safe States for Women')
-unsafe=safe1.tail(10)
-fig13=px.pie(unsafe, names='Area_Name', values='Rape_Cases_Reported',title='Most UnSafe States for Women')
+unsafe = safe1.tail(10)
+fig13 = px.pie(unsafe, names='Area_Name', values='Rape_Cases_Reported',title='Most UnSafe States for Women')
 
 tr_victims = victims[victims['Subgroup']=='Total Rape Victims']
 s1 = tr_victims.groupby('Year')['Rape_Cases_Reported'].sum().reset_index()
 fig14 = px.bar(s1, x='Year', y='Rape_Cases_Reported',title='Victims Of Rape Yearly')
 inc_victims = victims[victims['Subgroup']=='Victims of Incest Rape']
-sum_cases=inc_victims.groupby('Year')['Rape_Cases_Reported'].sum().reset_index()
+sum_cases = inc_victims.groupby('Year')['Rape_Cases_Reported'].sum().reset_index()
 fig15 = px.bar(sum_cases,x='Year',y='Rape_Cases_Reported', title='Victims Of Incest Rape Yearly')
 
 above_50 = inc_victims['Victims_Above_50_Yrs'].sum()
