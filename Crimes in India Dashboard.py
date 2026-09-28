@@ -69,7 +69,6 @@ scy = df.groupby(['YEAR'])[crimes].sum().reset_index()
 
 fig5 = px.line(scy, x='YEAR', y=crimes)
 
-dff = df.copy()
 dff = df.groupby('YEAR')['TOTAL IPC CRIMES'].sum().reset_index()
 fig6 = px.bar(dff, x='YEAR', y='TOTAL IPC CRIMES')
 
