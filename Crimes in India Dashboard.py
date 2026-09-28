@@ -9,6 +9,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import os
 
 app = dash.Dash(__name__)
 # ------------------------------------------------------------------------------
@@ -25,7 +26,7 @@ app.layout = html.Div([
 ])
 # ------------------------------------------------------------------------------
 # Data manipulation to produce each graphs
-df=pd.read_csv(r'E:/Sem-4/Data Visualization Lab/crime/01_District_wise_crimes_committed_IPC_2001_2012.csv')
+df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'crime', '01_District_wise_crimes_committed_IPC_2001_2012.csv'))
 df=df[df['DISTRICT']=='TOTAL']
 df.drop(['DISTRICT'],axis=1,inplace=True)
 df=df.set_index(['STATE/UT'])
@@ -77,7 +78,7 @@ fig6 = px.bar(dff, x='YEAR', y='TOTAL IPC CRIMES')
 # dff = dff.groupby('state')['TOTAL IPC CRIMES'].sum().sort_values(ascending=True).reset_index()
 # fig7 = px.bar(dff, y='state', x='TOTAL IPC CRIMES')
 
-victims = pd.read_csv(r'E:/Sem-4/Data Visualization Lab/crime/20_Victims_of_rape.csv')
+victims = pd.read_csv(os.path.join(os.path.dirname(__file__), 'crime', '20_Victims_of_rape.csv'))
 # fig, ax = plt.subplots(1, figsize=(10, 10))
 # ax.axis('off')
 # ax.set_title('State-wise Rape-Cases Reported (2001-2010)', fontdict={'fontsize': '15', 'fontweight' : '3'})
