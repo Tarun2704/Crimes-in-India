@@ -253,6 +253,19 @@ def display_page(pathname):
                 '''),
             ], className='row'),
         ])
+
+    elif pathname == '/':
+        return html.Div([
+            html.H3("Welcome to the Crimes in India Dashboard"),
+            html.P("Please select Page 1 (General Crimes) or Page 2 (Rape Analysis) from the links above.")
+        ])
+
+    else:
+        return html.Div([
+            html.H3("404 - Page not found"),
+            html.P(f"The requested path '{pathname}' was not found.")
+        ])
+
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     app.run_server(debug=True)
