@@ -116,9 +116,15 @@ fig16 = go.Figure(data=[go.Pie(labels=age_grp, values=age_group_vals,sort=False,
 )
 
 def display_page(pathname):
-    if pathname=='/page-1':
-
-            return html.Div(children=[
+    if pathname == '/':
+        return html.Div([
+            html.H2("Welcome to the Crimes in India Dashboard!", style={'text-align': 'center'}),
+            html.P("Please select a page from the links above:", style={'text-align': 'center'}),
+            html.P(dcc.Link('Page 1 (General Crimes)', href='/page-1'), style={'text-align': 'center'}),
+            html.P(dcc.Link('Page 2 (Rape Analysis)', href='/page-2'), style={'text-align': 'center'}),
+        ])
+    elif pathname == '/page-1':
+        return html.Div(children=[
             html.Div([
                html.Div([
                     html.H2("General Crimes in India Visuals", style={'text-align': 'center','color':'white','backgroundColor':'black'}),
@@ -185,9 +191,8 @@ def display_page(pathname):
                 '''),
             ], className='row'),
         ])
-    elif pathname=='/page-2':
-
-            return html.Div(children=[
+    elif pathname == '/page-2':
+        return html.Div(children=[
             html.Div([
                 html.Div([
                     html.H2("Rape Analysis", style={'text-align': 'center','color':'white','backgroundColor':'black'}),
@@ -252,6 +257,11 @@ def display_page(pathname):
                         
                 '''),
             ], className='row'),
+        ])
+    else:
+        return html.Div([
+            html.H1("404 - Page not found", style={'text-align': 'center'}),
+            html.P(f"The path '{pathname}' was not recognized.", style={'text-align': 'center'}),
         ])
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
