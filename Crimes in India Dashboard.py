@@ -116,7 +116,12 @@ fig16 = go.Figure(data=[go.Pie(labels=age_grp, values=age_group_vals,sort=False,
 )
 
 def display_page(pathname):
-    if pathname=='/page-1':
+    if pathname=='/':
+        return html.Div(children=[
+            html.H2("Welcome to the Crimes in India Dashboard", style={'text-align': 'center', 'color': 'white', 'backgroundColor': 'black'}),
+            html.P("Please pick Page 1 (general crimes) or Page 2 (the second crime category) from the links above.", style={'text-align': 'center', 'color': 'white', 'padding': '20px'})
+        ])
+    elif pathname=='/page-1':
 
             return html.Div(children=[
             html.Div([
@@ -252,6 +257,11 @@ def display_page(pathname):
                         
                 '''),
             ], className='row'),
+        ])
+    else:
+        return html.Div(children=[
+            html.H2("404 - Page not found", style={'text-align': 'center', 'color': 'red', 'backgroundColor': 'black'}),
+            html.P(f"The requested path '{pathname}' was not found.", style={'text-align': 'center', 'color': 'white', 'padding': '20px'})
         ])
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
