@@ -4,5 +4,3 @@ matplotlib
 plotly
 seaborn
 dash
-dash-core-components
-dash-html-components
