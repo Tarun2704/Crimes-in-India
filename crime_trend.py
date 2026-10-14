@@ -30,7 +30,17 @@ def print_trends(grouped_df):
             change_str = f"{pct_change:.2f}%"
         print(f"Year: {year} | Total IPC Crimes: {total} | Percentage Change: {change_str}")
 
+def print_biggest_increase(grouped_df):
+    """Print the year with the biggest increase in total IPC crimes."""
+    valid_df = grouped_df.dropna(subset=['PERCENTAGE_CHANGE'])
+    if not valid_df.empty:
+        max_row = valid_df.loc[valid_df['PERCENTAGE_CHANGE'].idxmax()]
+        year = int(max_row['YEAR'])
+        pct_change = max_row['PERCENTAGE_CHANGE']
+        print(f"\nYear with the biggest increase: {year} ({pct_change:.2f}%)")
+
 if __name__ == '__main__':
     df = load_data()
     grouped_df = process_data(df)
     print_trends(grouped_df)
+    print_biggest_increase(grouped_df)
