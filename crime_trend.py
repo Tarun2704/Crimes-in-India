@@ -39,8 +39,15 @@ def print_biggest_increase(grouped_df):
         pct_change = max_row['PERCENTAGE_CHANGE']
         print(f"\nYear with the biggest increase: {year} ({pct_change:.2f}%)")
 
+def print_average_change(grouped_df):
+    """Print the average yearly percentage change in total IPC crimes."""
+    avg_change = grouped_df['PERCENTAGE_CHANGE'].mean()
+    if not pd.isna(avg_change):
+        print(f"Average yearly change: {avg_change:.2f}%")
+
 if __name__ == '__main__':
     df = load_data()
     grouped_df = process_data(df)
     print_trends(grouped_df)
     print_biggest_increase(grouped_df)
+    print_average_change(grouped_df)
