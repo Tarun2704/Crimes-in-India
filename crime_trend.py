@@ -30,8 +30,18 @@ def print_trends(df):
             
         print(f"Year: {year} | Total IPC Crimes: {total} | Percentage Change: {pct_str}")
 
+def print_biggest_increase(df):
+    """Identify and print the year with the biggest increase."""
+    valid_df = df.dropna(subset=['PERCENT_CHANGE'])
+    if not valid_df.empty:
+        max_row = valid_df.loc[valid_df['PERCENT_CHANGE'].idxmax()]
+        year = int(row['YEAR'])
+        pct_change = max_row['PERCENT_CHANGE']
+        print(f"\nYear with the biggest increase: {year} ({pct_change:.2f}%)")
+
 if __name__ == '__main__':
     data = load_data()
     processed = process_data(data)
     with_change = calculate_percentage_change(processed)
     print_trends(with_change)
+    print_biggest_increase(with_change)
