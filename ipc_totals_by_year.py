@@ -24,9 +24,20 @@ for file_path in csv_files:
     # Read the CSV into a pandas DataFrame
     df = pd.read_csv(file_path)
 
-    # Filter out rows where 'DISTRICT' is "TOTAL" or ends with "TOTAL"
-    # The regex 'TOTAL$' matches "TOTAL" at the end of the string, which covers both "TOTAL" and "DISTRICT TOTAL"
-    df_filtered = df[~df['DISTRICT'].str.contains('TOTAL$', regex=True, na=False)]
+    # Rename columns if they exist
+    rename_dict = {}
+    if 'States/UTs' in df.columns:
+        rename_dict['States/UTs'] = 'STATE/UT'
+    if 'District' in df.columns:
+        rename_dict['District'] = 'DISTRICT'
+    if 'Year' in df.columns:
+        rename_dict['Year'] = 'YEAR'
+    if 'Total Cognizable IPC crimes' in df.columns:
+        rename_dict['Total Cognizable IPC crimes'] = 'TOTAL IPC CRIMES'
+    df = df.rename(columns=rename_dict)
+
+    # Filter out rows where 'DISTRICT' is "TOTAL" (case-insensitive) or ends with "TOTAL" (case-insensitive)
+    df_filtered = df[~df['DISTRICT'].str.contains('TOTAL$', case=False, regex=True, na=False)]
 
     # Select 'YEAR' and 'TOTAL IPC CRIMES' columns
     df_selected = df_filtered[['YEAR', 'TOTAL IPC CRIMES']]
