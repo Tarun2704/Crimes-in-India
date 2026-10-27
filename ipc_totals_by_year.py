@@ -5,7 +5,9 @@ import sys
 
 # Initialize ArgumentParser
 parser = argparse.ArgumentParser(description='Calculate and print total IPC crimes per year.')
-parser.add_argument('--year', type=int, help='Display total IPC crimes for a specific year.')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--year', type=int, help='Display total IPC crimes for a specific year.')
+group.add_argument('--top', type=int, help='Display top N years with the most crimes.')
 args = parser.parse_args()
 
 # Define the absolute path to the crime directory
@@ -51,7 +53,7 @@ yearly_totals = all_crimes_df.groupby('YEAR')['TOTAL IPC CRIMES'].sum()
 # Sort the results by 'YEAR' in ascending order
 yearly_totals_sorted = yearly_totals.sort_index(ascending=True)
 
-# Print one line per year, oldest first
+# Print results based on arguments
 if args.year:
     if args.year not in yearly_totals_sorted.index:
         available_years = ", ".join(map(str, yearly_totals_sorted.index.tolist()))
@@ -60,6 +62,10 @@ if args.year:
     else:
         total_crimes = yearly_totals_sorted[args.year]
         print(f"{args.year}: {total_crimes:,}")
+elif args.top is not None:
+    top_totals = yearly_totals.nlargest(args.top)
+    for year, total_crimes in top_totals.items():
+        print(f"{year}: {total_crimes:,}")
 else:
     # Print one line per year, oldest first
     for year, total_crimes in yearly_totals_sorted.items():
