@@ -1,0 +1,86 @@
+import pandas as pd
+import os
+import argparse
+import sys
+
+# Initialize ArgumentParser
+parser = argparse.ArgumentParser(description='Calculate and print total IPC crimes per year.')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--year', type=int, help='Display total IPC crimes for a specific year.')
+group.add_argument('--top', type=int, help='Display top N years with the most crimes.')
+group.add_argument('--state', type=str, help='Display total IPC crimes per year for a specific state.')
+args = parser.parse_args()
+
+# Define the absolute path to the crime directory
+CRIME_DIR = os.path.join(os.path.dirname(__file__), 'crime')
+
+# Define the list of CSV file paths
+csv_files = [
+    os.path.join(CRIME_DIR, '01_District_wise_crimes_committed_IPC_2001_2012.csv'),
+    os.path.join(CRIME_DIR, '01_District_wise_crimes_committed_IPC_2013.csv'),
+    os.path.join(CRIME_DIR, '01_District_wise_crimes_committed_IPC_2014.csv')
+]
+
+all_crimes_df = pd.DataFrame()
+
+for file_path in csv_files:
+    # Read the CSV into a pandas DataFrame
+    df = pd.read_csv(file_path)
+
+    # Rename columns if they exist
+    rename_dict = {}
+    if 'States/UTs' in df.columns:
+        rename_dict['States/UTs'] = 'STATE/UT'
+    if 'District' in df.columns:
+        rename_dict['District'] = 'DISTRICT'
+    if 'Year' in df.columns:
+        rename_dict['Year'] = 'YEAR'
+    if 'Total Cognizable IPC crimes' in df.columns:
+        rename_dict['Total Cognizable IPC crimes'] = 'TOTAL IPC CRIMES'
+    df = df.rename(columns=rename_dict)
+
+    # Filter out rows where 'DISTRICT' is "TOTAL" (case-insensitive) or ends with "TOTAL" (case-insensitive)
+    df_filtered = df[~df['DISTRICT'].str.contains('TOTAL$', case=False, regex=True, na=False)]
+
+    # Select 'STATE/UT', 'YEAR' and 'TOTAL IPC CRIMES' columns
+    df_selected = df_filtered[['STATE/UT', 'YEAR', 'TOTAL IPC CRIMES']]
+
+    # Append to the master DataFrame
+    all_crimes_df = pd.concat([all_crimes_df, df_selected], ignore_index=True)
+
+# Group by 'YEAR' and sum 'TOTAL IPC CRIMES'
+yearly_totals = all_crimes_df.groupby('YEAR')['TOTAL IPC CRIMES'].sum()
+
+# Sort the results by 'YEAR' in ascending order
+yearly_totals_sorted = yearly_totals.sort_index(ascending=True)
+
+# Print results based on arguments
+if args.year:
+    if args.year not in yearly_totals_sorted.index:
+        available_years = ", ".join(map(str, yearly_totals_sorted.index.tolist()))
+        print(f"Error: Year {args.year} not found in data. Available years: {available_years}", file=sys.stderr)
+        sys.exit(1)
+    else:
+        total_crimes = yearly_totals_sorted[args.year]
+        print(f"{args.year}: {total_crimes:,}")
+elif args.top is not None:
+    top_totals = yearly_totals.nlargest(args.top)
+    for year, total_crimes in top_totals.items():
+        print(f"{year}: {total_crimes:,}")
+elif args.state is not None:
+    state_df = all_crimes_df[all_crimes_df['STATE/UT'].str.lower() == args.state.lower()]
+    if state_df.empty:
+        available_states = ", ".join(sorted(all_crimes_df['STATE/UT'].unique()))
+        print(f"Error: State '{args.state}' not found in data. Available states: {available_states}", file=sys.stderr)
+        sys.exit(1)
+    state_yearly_totals = state_df.groupby('YEAR')['TOTAL IPC CRIMES'].sum()
+    state_yearly_totals_sorted = state_yearly_totals.sort_index(ascending=True)
+    for year, total_crimes in state_yearly_totals_sorted.items():
+        print(f"{year}: {total_crimes:,}")
+else:
+    # Print one line per year, oldest first
+    for year, total_crimes in yearly_totals_sorted.items():
+        print(f"{year}: {total_crimes:,}")
+    
+    grand_total = yearly_totals_sorted.sum()
+    print(f"All years: {grand_total:,}")
