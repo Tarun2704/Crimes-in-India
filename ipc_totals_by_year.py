@@ -1,5 +1,12 @@
 import pandas as pd
 import os
+import argparse
+import sys
+
+# Initialize ArgumentParser
+parser = argparse.ArgumentParser(description='Calculate and print total IPC crimes per year.')
+parser.add_argument('--year', type=int, help='Display total IPC crimes for a specific year.')
+args = parser.parse_args()
 
 # Define the absolute path to the crime directory
 CRIME_DIR = os.path.join(os.path.dirname(__file__), 'crime')
@@ -34,5 +41,18 @@ yearly_totals = all_crimes_df.groupby('YEAR')['TOTAL IPC CRIMES'].sum()
 yearly_totals_sorted = yearly_totals.sort_index(ascending=True)
 
 # Print one line per year, oldest first
-for year, total_crimes in yearly_totals_sorted.items():
-    print(f"{year}: {total_crimes:,}")
+if args.year:
+    if args.year not in yearly_totals_sorted.index:
+        available_years = ", ".join(map(str, yearly_totals_sorted.index.tolist()))
+        print(f"Error: Year {args.year} not found in data. Available years: {available_years}", file=sys.stderr)
+        sys.exit(1)
+    else:
+        total_crimes = yearly_totals_sorted[args.year]
+        print(f"{args.year}: {total_crimes:,}")
+else:
+    # Print one line per year, oldest first
+    for year, total_crimes in yearly_totals_sorted.items():
+        print(f"{year}: {total_crimes:,}")
+    
+    grand_total = yearly_totals_sorted.sum()
+    print(f"All years: {grand_total:,}")
