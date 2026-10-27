@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser(description='Calculate and print total IPC crim
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--year', type=int, help='Display total IPC crimes for a specific year.')
 group.add_argument('--top', type=int, help='Display top N years with the most crimes.')
+group.add_argument('--state', type=str, help='Display total IPC crimes per year for a specific state.')
 args = parser.parse_args()
 
 # Define the absolute path to the crime directory
@@ -41,8 +42,8 @@ for file_path in csv_files:
     # Filter out rows where 'DISTRICT' is "TOTAL" (case-insensitive) or ends with "TOTAL" (case-insensitive)
     df_filtered = df[~df['DISTRICT'].str.contains('TOTAL$', case=False, regex=True, na=False)]
 
-    # Select 'YEAR' and 'TOTAL IPC CRIMES' columns
-    df_selected = df_filtered[['YEAR', 'TOTAL IPC CRIMES']]
+    # Select 'STATE/UT', 'YEAR' and 'TOTAL IPC CRIMES' columns
+    df_selected = df_filtered[['STATE/UT', 'YEAR', 'TOTAL IPC CRIMES']]
 
     # Append to the master DataFrame
     all_crimes_df = pd.concat([all_crimes_df, df_selected], ignore_index=True)
@@ -65,6 +66,16 @@ if args.year:
 elif args.top is not None:
     top_totals = yearly_totals.nlargest(args.top)
     for year, total_crimes in top_totals.items():
+        print(f"{year}: {total_crimes:,}")
+elif args.state is not None:
+    state_df = all_crimes_df[all_crimes_df['STATE/UT'].str.lower() == args.state.lower()]
+    if state_df.empty:
+        available_states = ", ".join(sorted(all_crimes_df['STATE/UT'].unique()))
+        print(f"Error: State '{args.state}' not found in data. Available states: {available_states}", file=sys.stderr)
+        sys.exit(1)
+    state_yearly_totals = state_df.groupby('YEAR')['TOTAL IPC CRIMES'].sum()
+    state_yearly_totals_sorted = state_yearly_totals.sort_index(ascending=True)
+    for year, total_crimes in state_yearly_totals_sorted.items():
         print(f"{year}: {total_crimes:,}")
 else:
     # Print one line per year, oldest first
