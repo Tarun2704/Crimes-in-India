@@ -5,9 +5,10 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Print the five states with the most IPC crimes for a year."
+        description="Print the states with the most IPC crimes for a year."
     )
     parser.add_argument("--year", required=True, help="year to report")
+    parser.add_argument("--top", type=int, default=5, help="number of states to report")
     args = parser.parse_args()
 
     data_dir = Path(__file__).parent / "crime"
@@ -41,7 +42,9 @@ def main():
         )
 
     all_india_total = sum(totals.values())
-    for state, total in sorted(totals.items(), key=lambda item: (-item[1], item[0]))[:5]:
+    for state, total in sorted(totals.items(), key=lambda item: (-item[1], item[0]))[
+        : args.top
+    ]:
         percentage = total / all_india_total * 100
         print("{}: {:,} ({:.1f}%)".format(state, total, percentage))
 
